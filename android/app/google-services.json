@@ -54,7 +54,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:295974804966:android:de8e4db6d87fc2d8928a27",
         "android_client_info": {
-          "package_name": "com.samvabya.psm"
+          "package_name": "com.example.psm"
         }
       },
       "oauth_client": [

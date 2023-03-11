@@ -27,7 +27,6 @@ class _HomeState extends State<Home> {
   var balance = 0;
   IconData nicon = Icons.notifications_rounded;
   Color? ncolor = Colors.greenAccent[700];
-
   var promos = ['https://i.postimg.cc/MG5dW9D5/pays-loader.jpg'];
 
   Future<void> initiatehome() async {
@@ -263,12 +262,13 @@ class _HomeState extends State<Home> {
                     ),
                     //PEOPLE DISPLAY
                     SizedBox(
-                        height: 100,
+                        height: (Home.people.length > 5) ? 200 : 100,
                         child: GridView.builder(
                           scrollDirection: Axis.horizontal,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1),
+                                  crossAxisCount:
+                                      (Home.people.length > 5) ? 2 : 1),
                           itemBuilder: (context, index) => InkWell(
                               onTap: () {
                                 Navigator.push(
