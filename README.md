@@ -4,7 +4,6 @@
 A simple app that sends and recieves virtual money.
 
 
-![Logo](https://i.postimg.cc/rmqk4VzJ/psm-logo.png)
 
 
 ## Screenshots
