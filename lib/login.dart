@@ -1,7 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
+import 'package:alt_sms_autofill/alt_sms_autofill.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -146,7 +148,47 @@ class Otp extends StatefulWidget {
 }
 
 class _OtpState extends State<Otp> {
-  
+  late TextEditingController textEditingController1;
+
+  String _comingSms = 'Unknown';
+
+  Future<void> initSmsListener() async {
+    String? comingSms;
+    try {
+      comingSms = await AltSmsAutofill().listenForSms;
+    } on PlatformException {
+      comingSms = 'Failed to get Sms.';
+    }
+    if (!mounted) return;
+    setState(() {
+      _comingSms = comingSms!;
+      Fluttertoast.showToast(msg: 'Auto fetching OTP');
+      print("====>Message: ${_comingSms}");
+      print("${_comingSms[32]}");
+      textEditingController1.text = _comingSms[0] +
+          _comingSms[1] +
+          _comingSms[2] +
+          _comingSms[3] +
+          _comingSms[4] +
+          _comingSms[
+              5]; //used to set the code in the message to a string and setting it to a textcontroller. message length is 38. so my code is in string index 32-37.
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController1 = TextEditingController();
+    initSmsListener();
+  }
+
+  @override
+  void dispose() {
+    textEditingController1.dispose();
+    AltSmsAutofill().unregisterListener();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -173,9 +215,7 @@ class _OtpState extends State<Otp> {
       ),
     );
 
-    
-
-    var code = '';
+    // var code = '';
 
     return Scaffold(
       body: Padding(
@@ -212,9 +252,10 @@ class _OtpState extends State<Otp> {
                 SizedBox(
                   height: 55,
                   child: Pinput(
-                    onChanged: (value) {
-                      code = value;
-                    },
+                    controller: textEditingController1,
+                    // onChanged: (value) {
+                    //   code = value;
+                    // },
                     length: 6,
                     pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                     showCursor: true,
@@ -231,14 +272,9 @@ class _OtpState extends State<Otp> {
                       try {
                         PhoneAuthCredential credential =
                             PhoneAuthProvider.credential(
-                                verificationId: Login.verify, smsCode: code);
+                                verificationId: Login.verify,
+                                smsCode: textEditingController1.text);
 
-                        // Sign the user in (or link) with the credential
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Details(),
-                            ));
                         await FirebaseAuth.instance
                             .signInWithCredential(credential);
                       } catch (e) {
@@ -246,6 +282,12 @@ class _OtpState extends State<Otp> {
                       } finally {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setInt('counter', 1);
+                        // Sign the user in (or link) with the credential
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Details(),
+                            ));
                       }
                     },
                     style: ElevatedButton.styleFrom(
