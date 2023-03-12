@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:psm/login.dart';
 import 'package:psm/pin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uni_links/uni_links.dart';
 
 import 'details.dart';
 import 'home.dart';
@@ -15,7 +17,17 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  
+  Future<Null> initUniLinks()async{
+     try{
+        Uri? initialLink = await getInitialUri();
+        print(initialLink);
+     } on PlatformException {
+       print('platfrom exception unilink');
+     }
+   }
+
+   initUniLinks();
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(

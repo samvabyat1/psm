@@ -53,10 +53,14 @@ class _HomeState extends State<Home> {
       setState(() {
         if (Home.people.length == 1) {
           for (final child in event.snapshot.children) {
-            Home.people.insert(0, {
-              'name': child.child('name').value.toString(),
-              'phone': child.child('phone').value.toString()
-            });
+            if (child.child('name').value != null &&
+                child.child('phone').value.toString() !=
+                    prefs.getString('phone').toString()) {
+              Home.people.insert(0, {
+                'name': child.child('name').value.toString(),
+                'phone': child.child('phone').value.toString()
+              });
+            }
           }
         }
         for (final child in event.snapshot.child('promos').children) {
