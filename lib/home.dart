@@ -1,12 +1,14 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
 import 'dart:math';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:psm/landing.dart';
 import 'package:psm/notifications.dart';
 import 'package:psm/payment.dart';
+import 'package:psm/qrcode.dart';
 import 'package:psm/settings.dart';
 import 'package:psm/transactions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +30,16 @@ class _HomeState extends State<Home> {
   IconData nicon = Icons.notifications_rounded;
   Color? ncolor = Colors.greenAccent[700];
   var promos = ['https://i.postimg.cc/MG5dW9D5/pays-loader.jpg'];
+
+  Future<PermissionStatus> _getCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      final result = await Permission.camera.request();
+      return result;
+    } else {
+      return status;
+    }
+  }
 
   Future<void> initiatehome() async {
     final prefs = await SharedPreferences.getInstance();
@@ -79,6 +91,7 @@ class _HomeState extends State<Home> {
     super.initState();
 
     initiatehome();
+    _getCameraPermission();
   }
 
   @override
@@ -153,15 +166,21 @@ class _HomeState extends State<Home> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             HI1(
-                                ico: Icons.send_to_mobile_rounded,
-                                func: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Landing(),
-                                      ));
+                                ico: Icons.qr_code_rounded,
+                                func: () async {
+                                  PermissionStatus status =
+                                      await _getCameraPermission();
+                                  if (status.isGranted) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => QR(),
+                                        ));
+                                  } else {
+                                    _getCameraPermission();
+                                  }
                                 },
-                                tip: 'Send to mobile'),
+                                tip: 'Scan QR code'),
                             HI1(
                                 ico: Icons.search_rounded,
                                 func: () {

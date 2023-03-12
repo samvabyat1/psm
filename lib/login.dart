@@ -146,6 +146,7 @@ class Otp extends StatefulWidget {
 }
 
 class _OtpState extends State<Otp> {
+  
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -171,6 +172,8 @@ class _OtpState extends State<Otp> {
         color: Color.fromRGBO(234, 239, 243, 1),
       ),
     );
+
+    
 
     var code = '';
 

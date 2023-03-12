@@ -53,6 +53,7 @@ class _DetailsState extends State<Details> {
                 SizedBox(
                   height: 55,
                   child: TextField(
+                    keyboardType: TextInputType.name,
                     onChanged: (value) {
                       name = value;
                     },
