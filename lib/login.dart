@@ -269,6 +269,8 @@ class _OtpState extends State<Otp> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () async {
+                      int errorflag = 0;
+
                       try {
                         PhoneAuthCredential credential =
                             PhoneAuthProvider.credential(
@@ -279,7 +281,12 @@ class _OtpState extends State<Otp> {
                             .signInWithCredential(credential);
                       } catch (e) {
                         Fluttertoast.showToast(msg: 'Incorrect otp');
-                      } finally {
+                        setState(() {
+                          errorflag = 1;
+                        });
+                      } 
+                      
+                      if(errorflag == 0) {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setInt('counter', 1);
                         // Sign the user in (or link) with the credential
