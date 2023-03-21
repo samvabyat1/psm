@@ -23,7 +23,7 @@ App is in mid development state, therefore minor bugs can be detected and will e
 
 ## Tech Stack
 
-**Client:** Flutter, Android, IOS
+**Client:** Flutter, Android
 
 **Server:** Firebase
 
