@@ -8,7 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Payment extends StatefulWidget {
   final Map<String, String> person;
-  const Payment({super.key, required this.person});
+  var topup = false;
+  Payment({super.key, required this.person, topup});
 
   static var man;
   static int send = 0;
@@ -27,8 +28,8 @@ class _PaymentState extends State<Payment> {
     final snapshot1 =
         await ref.child(prefs.getString('phone').toString()).child('bal').get();
     setState(() {
-  sb =  int.parse(snapshot1.value.toString());
-});
+      sb = int.parse(snapshot1.value.toString());
+    });
   }
 
   @override
@@ -131,15 +132,16 @@ class _PaymentState extends State<Payment> {
                               msg: 'Amount should not be empty');
                         } else {
                           Payment.send = int.parse(amt);
-                          if (Payment.send > sb ) {
+                          if (Payment.send > sb) {
                             Fluttertoast.showToast(
                                 msg: 'Seems that your balance is insufficient');
                           } else {
                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Pin(end: true),
-                              ));}
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Pin(end: true),
+                                ));
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

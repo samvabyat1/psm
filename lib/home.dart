@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:psm/landing.dart';
 import 'package:psm/notifications.dart';
@@ -12,6 +14,7 @@ import 'package:psm/qrcode.dart';
 import 'package:psm/settings.dart';
 import 'package:psm/transactions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uni_links/uni_links.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -25,10 +28,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  var isvisible = true;
+  var iscompress = false;
   var username = 'User';
   var balance = 0;
-  IconData nicon = Icons.notifications_rounded;
-  Color? ncolor = Colors.greenAccent[700];
+  var isnotif = false;
   var promos = ['https://i.postimg.cc/MG5dW9D5/pays-loader.jpg'];
 
   Future<PermissionStatus> _getCameraPermission() async {
@@ -74,28 +78,43 @@ class _HomeState extends State<Home> {
         setState(() {
           username = '${event.snapshot.child('name').value} ';
           username = username.substring(0, username.indexOf(' '));
+          isvisible = false;
           balance = int.parse(event.snapshot.child('bal').value.toString());
 
-          nicon =
+          isnotif =
               (int.parse(event.snapshot.child('ncount').value.toString()) > 0)
-                  ? Icons.notifications_active_rounded
-                  : Icons.notifications_rounded;
-          ncolor =
-              (int.parse(event.snapshot.child('ncount').value.toString()) > 0)
-                  ? Colors.redAccent[700]
-                  : Colors.greenAccent[700];
+                  ? true
+                  : false;
         });
       }
     });
   }
 
+  Future<Null> initUniLinks() async {
+    try {
+      Uri? initialLink = await getInitialUri();
+      print(initialLink);
+      if (initialLink != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Payment(
+                  person: {'name': 'IS1 Top Up', 'phone': 'Business'},
+                  topup: true),
+            ));
+      }
+    } on PlatformException {
+      print('platfrom exception unilink');
+    }
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     initiatehome();
     _getCameraPermission();
+    initUniLinks();
   }
 
   @override
@@ -105,6 +124,33 @@ class _HomeState extends State<Home> {
         physics: ScrollPhysics(),
         child: Column(
           children: [
+            Visibility(
+              visible: !iscompress,
+              child: AnimatedOpacity(
+                opacity: isvisible ? 1.0 : 0.0,
+                onEnd: () => setState(() {
+                  iscompress = true;
+                }),
+                duration: const Duration(milliseconds: 1500),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 25),
+                      child: Center(
+                          child: Text(
+                        'Connecting...',
+                        style: TextStyle(color: Colors.black),
+                      )),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(25.0),
@@ -122,9 +168,11 @@ class _HomeState extends State<Home> {
                                 MaterialPageRoute(
                                   builder: (context) => Notifications(),
                                 )),
-                            color: ncolor,
+                            color: Colors.black,
                             iconSize: 30,
-                            icon: Icon(nicon))
+                            icon: Badge(
+                                isLabelVisible: isnotif,
+                                child: Icon(Icons.notifications_outlined)))
                       ],
                     ),
                     SizedBox(
@@ -231,13 +279,31 @@ class _HomeState extends State<Home> {
                       children: [
                         HI2(
                             ico: Icons.people_rounded,
-                            func: () {},
+                            func: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Landing(),
+                                  ));
+                            },
                             tip: 'People'),
                         HI2(
                             ico: Icons.person_rounded,
-                            func: () {},
+                            func: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Landing(),
+                                  ));
+                            },
                             tip: 'Contacts'),
-                        HI2(ico: Icons.favorite, func: () {}, tip: 'Favourite'),
+                        HI2(
+                            ico: Icons.favorite,
+                            func: () {
+                              Fluttertoast.showToast(
+                                  msg: 'Feature coming soon');
+                            },
+                            tip: 'Favourite'),
                       ],
                     ),
                     SizedBox(
@@ -248,11 +314,17 @@ class _HomeState extends State<Home> {
                       children: [
                         HI2(
                             ico: Icons.bar_chart_rounded,
-                            func: () {},
+                            func: () {
+                              Fluttertoast.showToast(
+                                  msg: 'Feature coming soon');
+                            },
                             tip: 'Invest'),
                         HI2(
                             ico: Icons.credit_card_rounded,
-                            func: () {},
+                            func: () {
+                              Fluttertoast.showToast(
+                                  msg: 'Feature coming soon');
+                            },
                             tip: 'Credit Score'),
                         HI2(
                             ico: Icons.settings_rounded,
@@ -285,13 +357,12 @@ class _HomeState extends State<Home> {
                     ),
                     //PEOPLE DISPLAY
                     SizedBox(
-                        height: (Home.people.length > 5) ? 200 : 100,
+                        height: 200,
                         child: GridView.builder(
                           scrollDirection: Axis.horizontal,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount:
-                                      (Home.people.length > 5) ? 2 : 1),
+                                  crossAxisCount: 2),
                           itemBuilder: (context, index) => InkWell(
                               onTap: () {
                                 Navigator.push(

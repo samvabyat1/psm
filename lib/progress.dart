@@ -1,14 +1,18 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, prefer_interpolation_to_compose_strings
 
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:psm/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uni_links/uni_links.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Progress extends StatefulWidget {
   const Progress({super.key});
@@ -94,31 +98,56 @@ class _ProgressState extends State<Progress> {
     int nc = int.parse(snapshotn.value.toString());
 
     ref.child(Payment.man['phone']).child('ncount').set(nc + 1);
+
+    //all complete
+    finalis();
+  }
+
+  Future<void> topup() async {
+    finalis();
+    Fluttertoast.showToast(msg: 'Opening IS1 Please tap on Recieve Topup');
+    final Uri url = Uri.parse('serve://iss.com?'+Payment.send.toString());
+    try {
+      await launchUrl(url);
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Target app not found');
+    }
+  }
+
+  Future<Null> initUniLinks() async {
+    try {
+      Uri? initialLink = await getInitialUri();
+      print(initialLink);
+      if (initialLink == null) {
+        initiatethis();
+      } else {
+        topup();
+      }
+    } on PlatformException {
+      print('platfrom exception unilink');
+    }
+  }
+
+  void finalis() {
+    setState(() {
+      nf = Icon(
+        Icons.verified_rounded,
+        size: 55,
+        color: Colors.green,
+      );
+
+      t = 'Payment successful';
+    });
+
+    final player = AudioCache();
+    player.play('paytm_payment_tune.mp3');
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    initiatethis();
-
-    Timer(
-      const Duration(milliseconds: 3000),
-      () {
-        setState(() {
-          nf = Icon(
-            Icons.verified_rounded,
-            size: 55,
-            color: Colors.green,
-          );
-
-          t = 'Payment successful';
-        });
-
-        final player = AudioCache();
-        player.play('paytm_payment_tune.mp3');
-      },
-    );
+    initUniLinks();
   }
 
   @override

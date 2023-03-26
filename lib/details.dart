@@ -102,7 +102,7 @@ class _DetailsState extends State<Details> {
                             .ref()
                             .child(prefs.getString('phone').toString());
 
-                        if (name == null) {
+                        if (name == null || name == '') {
                           Fluttertoast.showToast(msg: 'Please enter your name');
                         } else {
                           ref.child('name').set(name.trim());
