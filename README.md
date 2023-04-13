@@ -8,6 +8,8 @@ A simple app that sends and recieves virtual money.
 
 ## Screenshots
 
+![App Screenshot](https://i.postimg.cc/FK2FSz3k/Untitled.jpg)
+
 ![App Screenshot](https://i.postimg.cc/sfPFmwCb/Untitled-1.jpg)
 
 
